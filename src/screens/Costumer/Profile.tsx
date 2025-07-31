@@ -1,4 +1,4 @@
-import { Header } from "@components/header";
+import { Header } from '@components/header'
 import {
   SafeAreaView,
   View,
@@ -8,54 +8,51 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
-} from "react-native";
-import React, { useRef, useState } from "react";
-import { UserPhoto } from "@components/userPhoto";
-import { Input } from "@components/input";
-import { Button } from "@components/button";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import { ToastMessage } from "@components/ToastMessage";
-import { useAuth } from "@hooks/useAuth";
-import { Controller, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+} from 'react-native'
+import React, { useRef, useState } from 'react'
+import { UserPhoto } from '@components/userPhoto'
+import { Input } from '@components/input'
+import { Button } from '@components/button'
+import * as ImagePicker from 'expo-image-picker'
+import * as FileSystem from 'expo-file-system'
+import { ToastMessage } from '@components/ToastMessage'
+import { useAuth } from '@hooks/useAuth'
+import { Controller, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 type FormDataProps = {
-  name: string;
-  email: string;
-  oldPassword: string;
-  newPassword: string | undefined;
-  confirmPassword: string;
-};
+  name: string
+  email: string
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
 
 const profileSchema = yup.object({
-  name: yup.string().required("Informe o nome."),
-  email: yup.string().email("E-mail inválido").required("Informe o e-mail."),
-  oldPassword: yup.string().required("Informe a senha atual."),
+  name: yup.string().required('Informe o nome.'),
+  email: yup.string().email('E-mail inválido').required('Informe o e-mail.'),
+  oldPassword: yup.string().required('Informe a senha atual.'),
   newPassword: yup
     .string()
-    .min(8, "A senha deve ter pelo menos 8 caracteres.")
-    .nullable()
-    .transform((value) => (!!value ? value : null)),
+    .required('Informe a nova senha.')
+    .min(8, 'A senha deve ter pelo menos 8 caracteres.')
+    .transform((value) => (!!value ? value : '')),
   confirmPassword: yup
     .string()
-    .nullable()
-    .transform((value) => (!!value ? value : null))
-    .oneOf(
-      [yup.ref("newPassword"), null],
-      "A confirmação de senha não confere."
-    ),
-});
+    .required('Informe a confirmação de senha.')
+    .transform((value) => (!!value ? value : ''))
+    .oneOf([yup.ref('newPassword'), ''], 'A confirmação de senha não confere.'),
+})
 
 export function Profile() {
-  const inputRefName = useRef<TextInput>(null);
-  const inputRefEmail = useRef<TextInput>(null);
-  const inputRefOldPassword = useRef<TextInput>(null);
-  const inputRefNewPassword = useRef<TextInput>(null);
-  const inputRefConfirmPassword = useRef<TextInput>(null);
-  const { user } = useAuth();
-  const [userPhoto, setUserPhoto] = useState(user.avatar);
+  const inputRefName = useRef<TextInput>(null)
+  const inputRefEmail = useRef<TextInput>(null)
+  const inputRefOldPassword = useRef<TextInput>(null)
+  const inputRefNewPassword = useRef<TextInput>(null)
+  const inputRefConfirmPassword = useRef<TextInput>(null)
+  const { user } = useAuth()
+  const [userPhoto, setUserPhoto] = useState(user.avatar)
 
   const {
     control,
@@ -66,90 +63,90 @@ export function Profile() {
       name: user.name,
       email: user.email,
       oldPassword: user.password,
-      // newPassword: "",
-      // confirmPassword: "",
+      newPassword: '',
+      confirmPassword: '',
     },
     resolver: yupResolver(profileSchema),
-  });
+  })
 
   async function handleUserPhotoSelect() {
     try {
       const photoSelected = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
+        mediaTypes: 'images',
         quality: 1,
         allowsEditing: true,
-      });
+      })
 
-      const photoURI = photoSelected.assets?.[0]?.uri;
+      const photoURI = photoSelected.assets?.[0]?.uri
 
       if (photoURI) {
         const photoInfo = (await FileSystem.getInfoAsync(photoURI)) as {
-          size: number;
-        };
+          size: number
+        }
 
-        const photoSizeInMB = photoInfo.size / (1024 * 1024);
+        const photoSizeInMB = photoInfo.size / (1024 * 1024)
 
         if (photoSizeInMB > 5) {
           ToastMessage({
-            type: "error",
-            title: "Imagem muito grande",
-            message: "Por favor, selecione uma imagem menor que 5MB.",
-          });
-          return;
+            type: 'error',
+            title: 'Imagem muito grande',
+            message: 'Por favor, selecione uma imagem menor que 5MB.',
+          })
+          return
         }
       }
       if (photoURI) {
-        setUserPhoto(photoURI);
+        setUserPhoto(photoURI)
       }
     } catch (error) {
       ToastMessage({
-        type: "error",
-        title: "Erro",
-        message: "Não foi possível selecionar a foto. Tente novamente.",
-      });
+        type: 'error',
+        title: 'Erro',
+        message: 'Não foi possível selecionar a foto. Tente novamente.',
+      })
     }
   }
 
   function handleProfileUpdate(data: FormDataProps) {
-    console.log("Dados válidos:", data);
+    console.log('Dados válidos:', data)
   }
 
   return (
     <>
-      <Header title="Perfil" variant="default" />
+      <Header title='Perfil' variant='default' />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <SafeAreaView
           style={{
             flex: 1,
-            backgroundColor: "#121214",
+            backgroundColor: '#121214',
           }}
         >
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps='handled'
           >
             <View
               style={{
-                alignItems: "center",
-                justifyContent: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
                 paddingVertical: 10,
               }}
             >
               <UserPhoto width={150} height={150} source={{ uri: userPhoto }} />
               <TouchableOpacity
                 onPress={handleUserPhotoSelect}
-                style={{ alignItems: "center" }}
+                style={{ alignItems: 'center' }}
               >
                 <Text
                   style={{
-                    color: "#00B37E",
+                    color: '#00B37E',
                     fontSize: 18,
-                    fontWeight: "500",
+                    fontWeight: '500',
                   }}
                 >
                   Alterar foto
@@ -160,13 +157,13 @@ export function Profile() {
             <View
               style={{
                 flex: 1,
-                alignItems: "center",
+                alignItems: 'center',
               }}
             >
               <View
                 style={{
                   paddingHorizontal: 40,
-                  width: "100%",
+                  width: '100%',
                   flex: 1,
                   gap: 50,
                 }}
@@ -174,13 +171,13 @@ export function Profile() {
                 <View style={{ gap: 20 }}>
                   <Controller
                     control={control}
-                    name="name"
+                    name='name'
                     render={({ field: { onChange, value } }) => (
                       <Input
                         ref={inputRefName}
-                        variant="onEditing"
+                        variant='onEditing'
                         placeholder={user.name}
-                        keyboardType="default"
+                        keyboardType='default'
                         onSubmitEditing={() => inputRefEmail.current?.focus()}
                         onChangeText={onChange}
                         value={value}
@@ -189,14 +186,14 @@ export function Profile() {
                   />
                   <Controller
                     control={control}
-                    name="email"
+                    name='email'
                     render={({ field: { onChange, value } }) => (
                       <Input
                         ref={inputRefEmail}
-                        variant="onDisabled"
+                        variant='onDisabled'
                         placeholder={user.email}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
+                        keyboardType='email-address'
+                        autoCapitalize='none'
                         onChangeText={onChange}
                         value={value}
                       />
@@ -208,21 +205,21 @@ export function Profile() {
                   <Text
                     style={{
                       fontSize: 18,
-                      fontWeight: "500",
-                      color: "white",
+                      fontWeight: '500',
+                      color: 'white',
                     }}
                   >
                     Alterar senha
                   </Text>
                   <Controller
                     control={control}
-                    name="oldPassword"
+                    name='oldPassword'
                     render={({ field: { onChange, value } }) => (
                       <Input
                         ref={inputRefOldPassword}
-                        variant="onDisabled"
+                        variant='onDisabled'
                         placeholder={user.password}
-                        keyboardType="default"
+                        keyboardType='default'
                         secureTextEntry
                         onChangeText={onChange}
                         value={value}
@@ -231,13 +228,13 @@ export function Profile() {
                   />
                   <Controller
                     control={control}
-                    name="newPassword"
+                    name='newPassword'
                     render={({ field: { onChange, value } }) => (
                       <Input
                         ref={inputRefNewPassword}
-                        variant="onEditing"
-                        placeholder="Nova senha"
-                        keyboardType="default"
+                        variant='onEditing'
+                        placeholder='Nova senha'
+                        keyboardType='default'
                         secureTextEntry
                         onChangeText={onChange}
                         value={value}
@@ -246,13 +243,13 @@ export function Profile() {
                   />
                   <Controller
                     control={control}
-                    name="confirmPassword"
+                    name='confirmPassword'
                     render={({ field: { onChange, value } }) => (
                       <Input
                         ref={inputRefConfirmPassword}
-                        variant="onEditing"
-                        placeholder="Confirmar nova senha"
-                        keyboardType="default"
+                        variant='onEditing'
+                        placeholder='Confirmar nova senha'
+                        keyboardType='default'
                         secureTextEntry
                         onChangeText={onChange}
                         value={value}
@@ -265,13 +262,13 @@ export function Profile() {
 
                 <View
                   style={{
-                    justifyContent: "flex-end",
-                    marginTop: "auto",
+                    justifyContent: 'flex-end',
+                    marginTop: 'auto',
                     marginBottom: 30,
                   }}
                 >
                   <Button
-                    title="Atualizar"
+                    title='Atualizar'
                     onPress={handleSubmit(handleProfileUpdate)}
                   />
                 </View>
@@ -281,5 +278,5 @@ export function Profile() {
         </SafeAreaView>
       </KeyboardAvoidingView>
     </>
-  );
+  )
 }
